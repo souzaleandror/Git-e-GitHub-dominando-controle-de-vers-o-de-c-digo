@@ -623,3 +623,585 @@ Aprendemos sobre parâmetros adicionais do git log para alterar sua forma de exi
 Conhecemos o comando git show, que nos exibe os detalhes de um commit específico;
 Utilizamos o comando git diff para visualizar as diferenças entre dois pontos no histórico de nosso repositório git.
 
+#06/11/2025
+
+@02-Organizando o trabalho
+
+@@01
+Problemas ao colaborar
+
+Olá! Boas-vindas a mais uma aula deste curso de Git e GitHub. Na aula anterior, entendemos como trabalhar mais com log, visualizar os detalhes de commit com show, e as diferenças entre dois estados com diff. Agora falaremos sobre colaboração e como organizamos o trabalho colaborativo.
+Problemas ao colaborar
+Queremos levantar um ponto para você: se realizamos, por exemplo, um push que gerou erro na aula anterior, é porque utilizamos o usuário de trabalho e não o usuário pessoal. Com o usuário correto selecionado, fizemos o push novamente.
+
+git push origin main
+COPIAR CÓDIGO
+Agora vamos executar o comando abaixo:
+
+git log --graph
+COPIAR CÓDIGO
+Comentamos que existe uma linha, e em alguns momentos, pode existir uma bifurcação nessa linha. Vamos entender o que é essa bifurcação?
+
+Simulando um cenário
+Imagine um cenário mais próximo da realidade, onde trabalhamos em um projeto real, grande, com vários arquivos, funcionalidades e uma equipe com diversas pessoas, e nesse trabalho, alteramos alguns arquivos. Para simular esse caso, vamos abrir outro terminal e fazer o git clone do projeto:
+
+git clone git@github.com:CViniciusSDias/numero-secreto.git
+COPIAR CÓDIGO
+Em seguida, vamos acessar o projeto numero-secreto em outro lugar:
+
+cd numero-secreto/
+COPIAR CÓDIGO
+Ou seja, estamos fora do Visual Studio Code, em um terminal em outro local, e vamos abrir o arquivo index.html no ambiente diferente de outro editor para modificá-lo.
+
+vim index.html
+COPIAR CÓDIGO
+Feito isso, vamos remover o "em" do título "Jogo em JS"; será somente "Jogo JS".
+
+index.html:
+<title>Jogo JS</title>
+COPIAR CÓDIGO
+Uma vez salvo o arquivo, podemos executar o comando git status. Além disso, com o comando git diff, conseguimos visualizar o que foi alterado.
+
+git status
+COPIAR CÓDIGO
+git diff
+COPIAR CÓDIGO
+Agora vamos adicionar o arquivo index.html, e na sequência, adicionaremos um commit chamado "Removendo palavra do título". Após o commit, faremos o push para a origin main.
+
+git add index.html
+COPIAR CÓDIGO
+git commit -m "Removendo palavra do título"
+COPIAR CÓDIGO
+git push origin main
+COPIAR CÓDIGO
+Imagine que isso foi feito por uma pessoa que trabalha conosco, ou seja, outra pessoa fez o commit, o push, e está agora no repositório. Nós, ao mesmo tempo, trabalhamos em outra funcionalidade, como, por exemplo, corrigir o acento da palavra "número" na tag <h1> da linha 22.
+
+index.html:
+<h1>Descubra o <span class="container__texto-azul">número secreto</span></h1>
+COPIAR CÓDIGO
+Após fazer a alteração, vamos abrir o terminal no Visual Studio Code, executar o comando git diff para garantir que está tudo certo e que vamos comitar corretamente. Novamente, vamos adicionar o index.html, e adicionar o commit com a mensagem "Adicionando acento".
+
+git commit -m "Adicionando acento"
+COPIAR CÓDIGO
+Fizemos o commit, mas agora, quando formos fazer o git push origin main, o Git vai rejeitar esse push, dizendo que existem atualizações feitas que ainda não estão no código.
+
+Isso é um "problema" que já conhecemos antes, então o que precisa ser feito? Primeiro, precisamos fazer um git pull. Com isso, ele vai trazer as alterações e fazer o que ele chama de merge.
+
+Entenderemos melhor sobre merge em breve.
+git pull
+COPIAR CÓDIGO
+Vamos aceitar esse merge. No nosso editor, basta executar o comando :x para salvar. Assim, fizemos o merge e agora podemos fazer o push do origin main, ou seja, ele buscou as alterações que estavam no repositório, mesclou com as nossas (significado de "merge"), e agora temos o repositório atualizado. Com o repositório atualizado, podemos enviar as alterações.
+
+Porém, já abordamos tudo isso no curso anterior e você já passou por esse problema. Tanto que, se fizermos git log --graph, temos exatamente o cenário de bifurcação que já vimos anteriormente.
+
+git log --graph
+COPIAR CÓDIGO
+Por que mostramos isso de novo? Porque, novamente, pensando em um cenário colaborativo, imagine uma equipe pequena, com 10 pessoas. Imagine um projeto pequeno, com 1.000 arquivos.
+
+Isso, em uma escala de mundo real, são coisas pequenas; uma equipe de 10 pessoas é pequena, da mesma forma que um projeto com 1.000 arquivos é pequeno. Imagine ter que lidar com essa situação toda vez que alteramos algum desses 1.000 arquivos para cada uma dessas 10 pessoas.
+
+Toda hora terá alguém enviando modificação para o repositório, porque a cada alteração que fazemos no projeto, executamos um commit e enviamos essa alteração, para garantir que, caso nosso computador dê problema, nada seja perdido.
+
+Há ainda outro ponto: imagine que estamos fazendo uma alteração e estamos no processo de tornar a nossa aplicação como um todo gramaticalmente correta, então adicionamos o acento em "número", temos que verificar outros arquivos que provavelmente têm a palavra "número" sem acento, e assim por diante.
+
+Com isso, podemos ter vários commits nessa funcionalidade, isto é, uma única funcionalidade pode conter vários commits.
+
+Imagine que corrigimos a palavra "número" e fizemos o push para enviar a alteração para o repositório remoto. Assim, todas as pessoas que utilizarem esse repositório, irão visualizar a alteração no meio do caminho. Ainda não terminamos a funcionalidade, mas ela já está no repositório remoto para todos verem.
+
+Imagine que queremos colocar isso em produção. Sempre que vamos colocar um código em produção e disponibilizar efetivamente esse projeto para o mundo ver, ele deve estar pronto, no estado completo.
+
+Portanto, se estamos no meio de uma alteração, não podemos fazer o deploy (implantação), não podemos colocar esse projeto no ar.
+
+Sendo assim, alguém que desenvolvia outra funcionalidade, agora precisará nos esperar terminar essa funcionalidade para colocar a dela no ar, porque também enviamos metade de uma alteração.
+
+Conclusão
+Perceba que se todas as pessoas estiverem trabalhando na mesma linha de trabalho, no mesmo local, temos vários problemas: um problema organizacional, onde as funcionalidades estarão todas juntas no mesmo lugar; o problema de sempre precisar fazer a mescla dos trabalhos de outras pessoas com os nossos; entre outras questões.
+
+Há alguns problemas ao colaborar dessa forma. Por isso, vamos entender como separar linhas de trabalho, ou seja, como ramificar nossas alterações através de branches no Git. É isso que vamos abordar no próximo vídeo!
+
+@@02
+Ramificando o trabalho
+
+Transcrição
+
+Olá! Boas-vindas de volta. Já entendemos o problema de realizar commits no mesmo local. Se todos realizarem push para os commits no mesmo local, teremos problemas ao colaborar.
+Por isso, queremos te mostrar um site interessante chamado Visualizing Git (Visualizando Git). Nesse site, como o próprio nome diz, conseguimos visualizar como o Git funciona.
+
+Conhecendo o Visualizing Git
+Por padrão, temos um único commit chamado first commit. Repare que temos um master, que no nosso caso, chamamos de main; e o HEAD é exatamente o último commit, que está no mesmo lugar.
+
+No Visualizing Git, podemos executar o comando abaixo:
+
+git commit -m "Teste"
+Com isso, será adicionado um novo commit chamado "Teste". Podemos adicionar alguns commits, inclusive sem mensagem, apenas utilizando o comando git commit.
+
+git commit
+Ramificando o trabalho
+Temos nosso projeto desenvolvido e queremos começar a trabalhar em outra funcionalidade. Para isso, podemos criar uma ramificação, um galho na nossa árvore. Isso é o que chamamos de branch.
+
+Se digitarmos o comando git branch no Visualizing Git, ele vai mostrar quais são as branches, isto é, quais são as ramificações existentes no nosso trabalho.
+
+git branch
+Por padrão, só temos a branch main, que o Visualizing Git chama de master. Antigamente, a branch principal se chamava master, mas essa nomenclatura padrão foi alterada para main. Sendo assim, hoje em dia, a branch padrão se chama main.
+
+Se quisermos renomear a master para main, usamos o comando abaixo:
+
+git branch -m master main
+Se quisermos remover alguma branch, caso tenhamos uma lista de várias branches, podemos usar o comando git branch -d seguido do nome da branch que queremos remover. Por exemplo:
+
+git branch -d master
+Criando uma nova ramificação
+Em vez de renomear ou remover, queremos criar uma nova ramificação, ou seja, uma nova linha de trabalho, para que possamos criar essa nossa nova funcionalidade.
+
+Vamos chamar essa nova linha de trabalho de gramatica. Para isso, basta digitar o comando git branch seguido do nome do ramo que queremos trabalhar. Esse ramo, ou seja, essa branch será criada sem espaço, maiúsculas e acentos, porque é uma identificação de algo.
+
+git branch gramatica
+Agora, se fizermos um novo commit, ele será feito na branch master, onde estamos no momento, ou na branch gramatica? Vamos fazer esse commit com a mensagem "Onde estou".
+
+git commit -m "Onde estou"
+Perceba que foi feito o commit na branch master. Não fizemos na branch gramatica, porque o local de trabalho do projeto está na branch master. Se quisermos modificar a branch atual para outra, precisamos de algum comando, e existem alguns para isso.
+
+Alternando entre branches
+Primeiro, vamos mostrar um comando antigo, depois falamos sobre o mais novo. Inicialmente, digitaremos um comando chamado git checkout. O comando git checkout faz um monte de coisa. Nesse caso, se passarmos o nome de uma branch, ele vai alterar onde estamos.
+
+git checkout gramatica
+Ao fazer isso, repare que o HEAD muda de lugar e vai para baixo da branch gramatica. Isso indica que agora estamos na branch gramatica, trabalhando a partir desse commit.
+
+Sendo assim, se fizermos um commit com a mensagem "Agora na branch certa", por exemplo, visualizaremos uma ramificação no nosso trabalho.
+
+git commit -m "Agora na branch certa"
+Agora, há duas linhas de trabalho diferentes e independentes. Portanto, podemos executar o comando branch -d master para remover a branch master se quisermos.
+
+git branch -d master
+Feito isso, a branch master não existirá mais. Podemos fazer o git checkout para a branch main e adicionar alguns commits com o comando git commit sem mensagem.
+
+git checkout main
+git commit
+Repare que temos, novamente, duas linhas de trabalho diferentes. É isso que o comando git log --graph mostrou para nós anteriormente: a ramificação no nosso trabalho. Depois, podemos mesclar isso.
+
+Criando ramificações no projeto
+Agora que entendemos como funciona o processo no Visualizing Git, vamos fazer o mesmo no projeto real. Com o VS Code aberto, vamos acessar o terminal.
+
+Se digitarmos o comando git branch, ele vai retornar que só temos a branch main:
+
+git branch
+Poderíamos usar o comando git branch seguido de uma nova branch que quisermos, referente a qualquer nova funcionalidade. Porém, se quisermos criar uma branch e já mover para ela, podemos usar dois comandos. O primeiro é o git checkout -b seguido do nome da nova branch nova-funcionalidade.
+
+git checkout -b nova-funcionalidade
+Além desse comando mais antigo, podemos utilizar o git switch, também seguido do nome da branch desejada. "Switch" significa trocar, ou seja, esse comando basicamente alterna entre branches.
+
+Porém, se digitarmos simplesmente git switch nova-funcionalidade, será informado que essa branch não existe. Então, vamos executar git switch -c nova-funcionalidade (-c referente a "create").
+
+git switch -c nova-funcionalidade
+Agora temos uma nova ramificação do nosso trabalho. Podemos fechar o terminal e adicionar alguma modificação no código do arquivo index.html. Por exemplo: vamos adicionar uma quebra de linha na imagem (<img>) da linha 32, logo antes dos atributos alt e class.
+
+index.html:
+<img src="./img/ia.png" 
+     alt="Uma pessoa olhando para a esquerda"
+     class="container__imagem-pessoa" />
+Essa é a nova funcionalidade que desenvolvemos, com alterações no código. Agora vamos abrir o terminal novamente e executar o comando git status.
+
+git status
+Com isso, ele mostra que estamos na branch nova-funcionalidade. Vamos adicionar o arquivo index.html com o comando git add, e depois adicionar um commit com a mensagem "Quebrando linha na imagem".
+
+git add index.html
+git commit -m "Quebrando linha na imagem"
+Se fizermos um git log agora, temos um retorno um pouco diferente.
+
+git log
+Temos o commit anterior, do merge na branch main; temos o origin/main; agora o último commit é onde está o HEAD atual; e temos a branch nova-funcionalidade. Repare que a branch nova-funcionalidade ainda não foi para o origin, pois não enviamos.
+
+Porém, antes de enviar, vamos fazer um switch e voltar para branch main:
+
+git switch main
+A funcionalidade que estamos desenvolvendo está nessa branch, isto é, o commit existe nela, não descartamos ele. Porém, voltamos a trabalhar na linha de trabalho principal main.
+
+Portanto, se fechamos o terminal e acessamos a tag de imagem que alteramos no código, ela estará sem quebra de linha. Se voltarmos para o terminal e executarmos git log, o head terá voltado para main. Então, o HEAD é onde estamos no momento, é o commit atual onde o nosso projeto está.
+
+Dito isso, vamos fazer um git switch para nova-funcionalidade:
+
+git switch nova-funcionalidade
+Mais uma vez, o código aparecerá atualizado com a quebra de linha que adicionamos. Assim, podemos fazer o git push para o repositório remoto, ou seja, origin da branch nova-funcionalidade.
+
+git push origin nova-funcionalidade
+Após teclar "Enter", a nova ramificação será criada e teremos uma nova linha de trabalho.
+
+Conclusão
+Repare que trabalhar com branches é relativamente simples. A parte complexa é entender por que fazer isso, mas já explicamos no vídeo anterior. O que ainda pode ser complexo é unir os trabalhos.
+
+Na linha principal, alguém pode ter adicionado novos commits e novas funcionalidades. Enquanto isso, temos a linha de trabalho nova-funcionalidade, onde adicionamos as quebras de linha. Como podemos unir esses dois mundos? É sobre isso que vamos conversar no próximo vídeo!
+
+@@03
+Para saber mais: Visualizing Git
+
+Nesta aula, utilizamos o Visualizing Git para exemplificar o comportamento do git em relação às ramificações (branches). Essa ferramenta, que funciona como um playground, simulando operações do Git, é um excelente auxílio para observar graficamente o que acontece por baixo dos panos em cada comando utilizado.
+Explore também o Visualizing Git e realize os seus próprios experimentos.
+
+https://git-school.github.io/visualizing-git/
+
+@@04
+Para saber mais: comando checkout
+
+Nesta aula, mencionamos que o git checkout é um comando “antigo” e que há alternativas mais modernas. É importante ressaltar que o comando checkout continua funcionando e não há nenhum indício de que ele será removido do git, mas devido à sua grande complexidade, ele foi separado em dois comandos diferentes: o git switch, que também vimos nessa aula, e o git restore, que abordaremos em breve.
+Você pode entender melhor a motivação por trás dessa separação e espiar um spoiler do git restore através do Alura+ Entenda os comandos git restore e switch.
+
+https://cursos.alura.com.br/extra/alura-mais/entenda-os-comandos-git-restore-e-switch-c99
+
+@@05
+Unindo as ramificações
+
+Transcrição
+
+Olá! Boas-vindas de volta. Entendemos o problema que as branches (ramificações) vêm para resolver e como criar e alternar entre elas.
+Note que fizemos o push de nova-funcionalidade, e no GitHub, ele exibe uma mensagem que indica que podemos criar uma pull request a partir da nossa nova branch.
+
+O GitHub já identificou que existe uma nova branch e que, em algum momento, vamos querer unir a branch nova-funcionalidade com a main, que é a branch principal.
+
+Vamos deixar um Para saber mais sobre pull requests quando colaboramos, por exemplo, em um projeto open source (de código aberto), ou até se colaboramos com uma equipe que utiliza GitHub.
+Basicamente, queremos unir o trabalho da branch nova-funcionalidade à branch main.
+
+Unindo as ramificações
+Não precisamos utilizar o GitHub para esse objetivo, então vamos acessar o Visualizing Git. Em uma nova linha de trabalho, vamos adicionar dois commits com o comando git commit, criar a branch nova-funcionalidade com o comando git checkout -b, e adicionar mais dois commits a essa nova branch.
+
+git commit
+COPIAR CÓDIGO
+git checkout -b nova-funcionalidade
+COPIAR CÓDIGO
+Em seguida, vamos fazer um git switch para a branch master:
+
+git switch master
+COPIAR CÓDIGO
+Queremos pegar tudo o que foi feito em nova-funcionalidade e trazer para o ramo principal master. Existe um comando que faz isso de forma bastante simples: o git merge ("mesclar" em inglês).
+
+Você se lembra que quando fizemos o pull e o push com dois usuários diferentes, chegamos nesse cenário de merge, isto é, de mescla de trabalhos? Podemos fazer isso ativamente.
+
+Podemos dizer que estamos na branch main, a branch principal, pegar tudo o que tem na branch nova-funcionalidade e mesclar com o que já temos na main.
+
+Se fizermos o merge de nova-funcionalidade, ele vai levar a main para o mesmo local.
+
+git merge nova-funcionalidade
+COPIAR CÓDIGO
+O que é fast forward?
+Existem algumas formas do merge ser feito. Nesse caso, ele executou o que é chamado de fast forward (mover adiante). Até o ponto da nova-funcionalidade ser criada, a master estava no terceiro commit. A partir desse ponto, criamos uma nova branch, e a branch nova-funcionalidade evoluiu na mesma linha, sem que a master tivesse novos commits.
+
+Então, na hora de fazer o merge, é muito simples: não precisamos criar nenhum novo commit; o Git entende tudo e só move as coisas. Se queremos unir as coisas, a partir de agora, a branch principal estará no mesmo ponto que a nova-funcionalidade. Isso é o chamado fast forward.
+
+Vamos fazer isso no terminal do Visual Studio Code. Começaremos fazendo o git switch para a branch principal main, e faremos um merge com nova-funcionalidade.
+
+git switch main
+COPIAR CÓDIGO
+git merge nova-funcionalidade
+COPIAR CÓDIGO
+Com isso, ele fará exatamente o que dissemos: o fast forward. Isso quer dizer que ele não cria um novo commit, nem faz nada de diferente; ele simplesmente diz que, a partir de agora, a branch main está no mesmo lugar que a branch nova-funcionalidade.
+
+Se executarmos o comando git log --graph, notaremos que não precisamos de uma nova ramificação.
+
+git log --graph
+COPIAR CÓDIGO
+Realizando alterações
+Vamos voltar para a branch nova-funcionalidade e alterar algo no código.
+
+git switch nova-funcionalidade
+COPIAR CÓDIGO
+Podemos acessar o arquivo README.md, por exemplo, e fazer alguma alteração simples. Nesse caso, vamos adicionar uma quebra de linha entre cada uma das imagens a partir da linha 8.
+
+README.md:
+## 🚀 Tecnologias
+<div>
+  <img src="https://img.shields.io/badge/HTML-239120?style=for-the-badge&logo=html5&logoColor=white">
+
+  <img src="https://img.shields.io/badge/CSS-239120?&style=for-the-badge&logo=css3&logoColor=white">
+
+  <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black">
+</div>
+COPIAR CÓDIGO
+Novamente, o comando git status vai nos mostrar que estamos na branch nova-funcionalidade:
+
+git status
+COPIAR CÓDIGO
+Vamos adicionar o arquivo README.md com o comando git add e, na sequência, adicionar um novo commit com a mensagem "Quebra de linha entre imagens". Podemos até fazer o git push de nova-funcionalidade para ir ao repositório remoto.
+
+git add README.md
+COPIAR CÓDIGO
+git commit -m "Quebra de linha entre imagens"
+COPIAR CÓDIGO
+git push origin nova-funcionalidade
+COPIAR CÓDIGO
+Feito isso, vamos voltar para a branch main.
+
+git switch main
+COPIAR CÓDIGO
+Imagine que outras funcionalidades estão acontecendo e outras pessoas estão desenvolvendo. Dito isso, vamos ao arquivo style.css, por exemplo, e mudaremos a propriedade font-size da tag h1 de 50px para 51px, dentro do @media screen na linha 116.
+
+style.css:
+@media screen and (max-width: 1250px) {
+
+    h1 {
+        font-size: 51px;
+    }
+COPIAR CÓDIGO
+Suponha que outras pessoas estão trabalhando e vão adicionar essa modificação na branch principal main. Pense que elas já fizeram o trabalho delas em outra branch e mesclaram com a main.
+
+É isso que vai acontecer: vamos adicionar o arquivo de estilo com o comando git add, e a mensagem do commit será "Aumentando a fonte".
+
+git add style.css
+COPIAR CÓDIGO
+git commit -m "Aumentando a fonte"
+COPIAR CÓDIGO
+Agora, se executarmos o comando git log, temos o commit "Aumentando a fonte". Se alternarmos para a branch nova-funcionalidade com git switch, e executarmos novamente git log para verificar o que temos em nova-funcionalidade, o commit "Aumentando a fonte" não fará parte dessa linha de trabalho.
+
+Fazendo um merge commit
+Estamos no cenário onde as duas branches evoluíram de forma independente. Este é o cenário mais comum: trabalhamos na branch de alguma funcionalidade, e outras funcionalidades foram adicionadas à main, outras coisas foram feitas e já estão na linha de trabalho principal.
+
+Sendo assim, quando fizermos um git switch para main e tentarmos fazer um git merge de nova-funcionalidade, o Git vai entender que esses dois trabalhos estão independentes e não evoluíram de forma igual. Dessa forma, ele irá unir criando um novo commit automaticamente. Ele criará um novo commit de merge, ou merge commit, como normalmente é chamado nas documentações.
+
+git switch main
+COPIAR CÓDIGO
+git merge nova-funcionalidade
+COPIAR CÓDIGO
+Com esses comandos, será aberto um editor que permite a alteração da mensagem de commit de merge. No nosso caso, vamos deixar o commit como está.
+
+Como o editor é o VI, basta executar :x para salvar e sair. Ao final, teremos um novo commit criado. Se executarmos o comando git log --graph, podemos observar o que acontece na main.
+
+Primeiramente, temos o commit "Quebrando linha na imagem". Depois ele cria uma nova linha de trabalho, onde temos o commit "Aumentando a fonte". Na sequência, temos "Quebra de linha entre imagens", e por último o merge commit, isto é, o commit de mescla.
+
+Reparem que bifurcamos o nosso trabalho e depois unimos. Lembrando que tudo isso é feito automaticamente pelo Git, mas é importante entender que existem essas duas estratégias: de fast forward e de criação do merge commit.
+
+Dessa forma, conseguimos unir trabalho de duas branches diferentes para ter tudo na linha principal. Agora a nossa linha principal possui toda a nova-funcionalidade. O ramo nova-funcionalidade foi completo, unimos à linha principal, então agora podemos fazer deploy da nossa aplicação.
+
+Ajustes finais
+Para finalizar, vamos executar o comando git push origin main para atualizar a main com todo o trabalho novo. Em seguida, removeremos a branch nova-funcionalidade com git branch -d, para manter o projeto limpo e sem excesso de branches.
+
+git push origin main
+COPIAR CÓDIGO
+git branch -d nova-funcionalidade
+COPIAR CÓDIGO
+Ainda podemos remover a branch nova-funcionalidade do repositório remoto no GitHub. Para isso, executamos o seguinte comando:
+
+git push origin :nova-funcionalidade
+COPIAR CÓDIGO
+Os dois pontos (:) indicam que estamos removendo no repositório remoto.
+Conclusão
+Entendemos o motivo para ter branches, como lidar com branches e como unir o trabalho entre branches. Porém, em alguns cenários, não queremos criar o merge commit, mesmo que as duas linhas de trabalho tenham evoluído de forma individual. Vamos mostrar como reescrever a história com Git no próximo vídeo!
+
+@@06
+Para saber mais: pull requests
+
+O GitHub possui uma funcionalidade chamada Pull requests, que é uma sugestão de alteração em determinado repositório. Outras ferramentas, como o GitLab, podem chamar essa mesma ferramenta de Merge requests.
+Essa sugestão de alteração é, de forma resumida, a abordagem que adotamos ao colaborar com equipes para adicionar novas funcionalidades ou corrigir alterações. Ao invés de manualmente mesclarmos o código de nossa branch com a main, nós criamos um pull request (ou merge request), pois dessa forma a alteração fica mais visível para toda a equipe e permite que outras pessoas possam revisar esse trabalho.
+
+Há muitas outras funcionalidades em pull requests, mas essa explicação já é um bom começo. Se você quiser ver um pull request na prática para um projeto de código aberto, no vídeo Contribuindo para projetos open source - Criando um pull request real no GitHub eu mostro exatamente isso.
+
+https://youtu.be/cdL_F3FiSWI
+
+@@07
+Atualizando a branch
+
+Transcrição
+
+Já estamos começando a entender um pouco melhor sobre branches. Essa parte de mesclagens pode parecer complexa no início, então não se preocupem. Normalmente, trabalhamos com cenários mais tranquilos até evoluir para resolver conflitos maiores.
+Atualizando a branch
+No Visualizing Git, encontramos o cenário que reproduzimos na última aula.
+
+Diagrama de fluxo representando o processo de controle de versão usando git, mostrando uma linha do tempo principal de commits na base com sete círculos cinza conectados por setas indicando a sequência dos commits.
+Temos a branch principal, ramificamos uma nova funcionalidade, criamos dois commits e depois fizemos um merge, ou seja, um novo commit foi criado com a junção desses dois trabalhos. Basicamente, é isso que fazemos quando temos um merge, quando temos dois trabalhos bifurcados.
+
+Agora, criaremos um novo cenário. Então, rodamos o comando clear para limpar o Visualizing Git.
+
+clear
+COPIAR CÓDIGO
+Em sequencia, adicionamos uma nova branch chamada main, então passamos git checkout -b main.
+
+git checkout -b main
+COPIAR CÓDIGO
+Em sequência, removemos a branch chamada master para já nos adaptarmos com os nomes corretos. Então passamos o comando git branch -d master.
+
+git branch -d master
+COPIAR CÓDIGO
+Recapitulando, o git checkout é um comando antigo que faz muita coisa. Contudo, o Visualizing Git não foi atualizado para ter o comando git switch. Mas, normalmente, utilizamos o comando git switch, que é mais simples.
+Continuando, adicionaremos alguns commits na branch main, faremos isso sem mensagem, só commits vazios. Passamos git commit duas vezes.
+
+git commit
+COPIAR CÓDIGO
+Agora criaremos um novo branch passando git branch nova-funcionalidade.
+
+git branch nova-funcionalidade
+COPIAR CÓDIGO
+Criamos um novo branch, mas ainda estamos na main, não na nova-funcionalidade. Após, adicionamos mais dois commits na branch main passando git commit.
+
+Agora, voltamos para o git checkout nova-funcionalidade para trabalharmos nela.
+
+git checkout nova-funcionalidade
+COPIAR CÓDIGO
+Em seguida adicionamos dois commits, passando duas vezes o código abaixo.
+
+git commit
+COPIAR CÓDIGO
+O cenário que montamos no Visualizing Git, criamos uma nova branch chamada nova-funcionalidade e estamos trabalhando nela. Enquanto trabalho nessa branch, outras pessoas podem ter criado outros branches e já se uniram à linha principal, à main. Normalmente, essa main é o projeto final que pode ser enviado à produção. É o projeto com todas as funcionalidades que estejam completas.
+
+Estamos criando uma nova funcionalidade, porém queremos testá-la na versão mais recente do projeto. Repare que, a partir do momento em que criamos a nova-funcionalidade, dois outros commits também foram criados, ou seja, duas funcionalidades foram adicionadas no projeto principal.
+
+Queremos garantir que o que estamos desenvolvendo funcione, mesmo com as funcionalidades que as outras pessoas criaram. Queremos garantir que tudo se integre da forma correta.
+
+Sendo assim, queremos fazer com que a branch nova-funcionalidade não seja criada a partir da versão antiga da branch maine sim da versão mais nova.
+
+Portanto, queremos reescrever a história, fazendo com que o primeiro commit da nova funcionalidade venha logo após do momento atual da main atualizada. Queremos fazer com que a branch nova-funcionalidade, seja reescrito para ter todas as funcionalidades da main antes dela.
+
+Isso pode ser feito com um comando mágico chamado git rebase, que faz muita coisa, como reescrever a história dos commits. Então, se estivermos em nova-funcionalidade e executarmos o comando git rebase main, ele pegará todos os commits da main que não estão na branch nova-funcionalidade, e tentar adicionar um a um antes da branch nova-funcionalidade.
+
+git rebase main
+COPIAR CÓDIGO
+Ele pegará o primeiro commit e tentar adicionar antes do commit nova-funcionalidade. Pegará o próximo commit, que é o último da main, e tentar adicionar antes do commit nova-funcionalidade. Após isso, pega todos os commits da nova-funcionalidade e aplica depois do último da main.
+
+Pode parecer bastante complexo, mas se visualizarmos o que está acontecendo, talvez fique um pouco mais fácil. Ele primeiro traz o head para a main e depois aplica tudo da nova-funcionalidade, cada um dos commits, depois. Vai aplicando commit a commit depois da última coisa que estiver na main.
+
+Recapitulando novamente. Temos duas branches independentes, uma main e uma nova-funcionalidade. Se queremos garantir que essa nova-funcionalidade agora tenha tudo o que tem na main também, podemos fazer o rebase.
+
+O rebase fará o quê? Se estamos na nova-funcionalidade e tentamos fazer o rebase com a main, ele vai alterar o branch para ir para a main. Depois da main, ele vai aplicando cada um dos commits da nova-funcionalidade. Isso é feito commit por commit, porque se tiver algum conflito em algum dos commits, vamos resolvendo um a um. Dessa forma, conseguimos reescrever a história.
+
+Reparem que agora o nova-funcionalidade possui dois commits com hashes diferentes, porque vieram de outro lugar a partir de uma nova história. Vamos fazer isso, na prática.
+
+Para isso, abrimos o projeto no VS Code, limpamos o terminal e passamos o comando git status.
+
+git status
+COPIAR CÓDIGO
+Agora estamos na main. Então, passamos o comando git switch -c nova-funcionalidade. Vou criar mais uma nova-funcionalidade.
+
+git switch -c nova-funcionalidade
+COPIAR CÓDIGO
+Agora, corrigiremos a indentação do link na linha 10 para que o atributo rel esteja na mesma coluna do meu atributo href. Fizemos uma alteração simples.
+
+No terminal, adicionamos esse commit. Então, escrevemos git add index.html.
+
+git add index.html
+COPIAR CÓDIGO
+Seguido de git commit -m "Corrigindo indentação".
+
+git commit -m "Corrigindo indentação"
+COPIAR CÓDIGO
+Vamos quebrar também o <script> para que a abertura e o fechamento dessa tag fiquem em linhas diferentes.
+
+//Código omitido
+
+<script src="https://code.responsivevoice.org/responsivevoice.js">
+</script>
+
+//Código omitido
+COPIAR CÓDIGO
+Feito isso, no terminal passamos git add index.html, seguido de git commit -m "Quebrando linha do script".
+
+git commit -m "Quebrando linha do script"
+COPIAR CÓDIGO
+Temos a nova-funcionalidade sendo desenvolvida. Agora, faremos o git switch para main. Imagine que alguma outra nova funcionalidade será adicionada no ramo principal.
+
+Quebraremos a linha referente ao botão de chute para que o texto Chutar fique separado das tags de abrir e fechar <button>. Fazemos o mesmo em Novo Jogo.
+
+//Código omitido
+
+    <div class="chute container__botoes">
+            <button onclick="verificarChute()" class="container__botao">
+                Chutar
+            </button>
+            <button onclick="reiniciarJogo()" id="reiniciar" class="container__botao" disabled>
+                Novo jogo
+            </button>
+    </div>
+</div>
+
+//Código omitido
+COPIAR CÓDIGO
+Feito isso, salvamos. No terminal, adicionamos git add index.html, seguido do git commit -m "Indentando botões".
+
+git commit -m "Indentando botões"
+COPIAR CÓDIGO
+Na branch main, temos uma nova funcionalidade que indentou os botões. Se fazemos git switch nova-funcionalidade, temos a indentação das tags no início do arquivo. Só que queremos garantir que o arquivo index.html esteja correto mesmo se pegarmos tudo da última versão da main. Então, primeiro passamos o comando git log --.
+
+git log --
+COPIAR CÓDIGO
+Assim é exibido que temos Corrigindo indentação, mostrando a linha do script depois do origin/main, mas não do main/local, pois tem um commit novo. Limpamos a tela e passamos o git rebase main.
+
+git rebase main
+COPIAR CÓDIGO
+Isso faz um git switch para main, pega cada um dos commits que temos nessa nova-funcionalidade e tenta aplicar a partir desse novo momento. Depois, move novo branch para a nova linha. Então, fazemos o git rebase main.
+
+git rebase main
+COPIAR CÓDIGO
+Repare que primeiro, estamos fazendo o rewind, ou seja, estamos voltando para o início dessa branch. Depois, estamos aplicando o commit de corrigir a indentação e aplicamos o commit de quebrando a linha do script. Deu tudo certo!
+
+Se passarmos git log agora, reparem que o branch nova-funcionalidade começa a partir do branch main, do novo main que criamos localmente. Então, reescrevi a história. Agora, podemos fazer o git push origin main.
+
+git push origin main
+COPIAR CÓDIGO
+Seguido de git push origin nova-funcionalidade.
+
+git push origin nova-funcionalidade
+COPIAR CÓDIGO
+Estamos mandando tudo para o repositório remoto. Claro, podemos voltar para o git switch main e fazer um git merge nova-funcionalidade.
+
+Com isso, ele vai conseguir fazer o fast-forward porque já fiz o rebase, então não precisa daquele commit de merge. Porque, novamente, ele já reescreveu a história garantindo que os dois branches não sejam mais separados e sim que podem estar juntos.
+
+Reparem que quando fazemos o merge, conseguimos fazer o fast-forward. Então, agora, novamente fazemos o git push origin main que agora tem a nova-funcionalidade.
+
+Um detalhe importante antes de finalizar e que fast-forward, commit de merge, parecem ser detalhes bem pequenos e, na verdade, são. Quando estamos trabalhando, podemos simplesmente executar o git merge sem saber se ele vai fazer o fast-forward ou se vai fazer um commit de merge.
+
+Porém, em algumas empresas, podem ter políticas onde todos os merges precisem ser feitos com o fast-forward. Então, antes de qualquer merge, é preciso fazer um rebase.
+
+Também pode ser o contrário, precisamos garantir que nunca utilizaremos o fast-forward para sempre ter no grafo do log as ramificações. Então, podemos utilizar estratégias para isso também.
+
+Mas, para o nosso cenário, já é o suficiente conhecer os comandos merge para mesclar trabalhos e o comando rebase para reescrever a história e garantir que uma nova branch possa ser atualizada a partir de uma branch anterior.
+
+Já temos bastante conteúdo sobre o trabalho com branches. Agora, falaremos sobre manipular o que temos de versão. Por exemplo, se temos um trabalho que teremos que abandonar para corrigir um bug ou situações semelhantes, como podemos guardá-lo para depois e desfazer trabalhos?
+
+É isso que aprenderemos na aula seguinte. Até lá!
+
+@@08
+Rebase vs Merge
+
+Você faz parte de um time de desenvolvimento em uma empresa de software que atualmente está trabalhando em uma nova aplicação de gerenciamento de projetos. A equipe utiliza o Git como sistema de controle de versão e o GitHub para hospedar os repositórios.
+Recentemente, a equipe dividiu as tarefas em diferentes branches para implementar novos recursos e correções de bugs, assim cada desenvolvedor trabalhou em sua própria branch dedicada para garantir a independência do trabalho.
+
+Mas, agora chegou o momento de integrar as alterações de diferentes branches ao branch principal, que representa a versão estável do projeto. No entanto, surgiram dúvidas sobre qual abordagem usar: merge ou rebase.
+
+Neste cenário, qual a diferença entre esses comandos?
+
+O merge sempre cria um merge commit ao unir o trabalho de duas branches enquanto o rebase une duas branches usando fast forward.
+ 
+Há dois erros nessa alternativa. Primeiro, o merge nem sempre vai criar um merge commit. Inclusive a abordagem padrão é justamente de evitar merge commits fazendo o fast forward. O segundo erro é ao afirmar que o rebase une duas branches quando na verdade ambas as branches utilizadas no rebase continuam independentes. Ele apenas “reescreve a história” de uma das branches aplicando os commits de outra.
+Alternativa incorreta
+Ambos são sinônimos, ou seja, não há diferença.
+ 
+Alternativa incorreta
+O rebase junta os trabalhos e gera um commit de junção. O merge aplica os commits de outra branch na branch atual..
+ 
+Alternativa incorreta
+O merge junta os trabalhos de duas branches, podendo gerar um merge commit. Já o rebase aplica os commits de outra branch na branch atual.
+ 
+O trabalho do rebase é equivalente ao que vimos na prática como fast forward do merge. Ao realizar o rebase, todos os commits da outra branch são adicionados antes do primeiro commit da nossa branch atual, reescrevendo a história. Isso faz com que novas alterações possam ser integradas à nossa branch e permite que quando formos realizar o merge, não seja necessário um merge commit, garantindo o fast forward.
+
+@@09
+Faça como eu fiz: trabalhando com branches
+
+Nesta aula, nós aprendemos sobre um dos conceitos mais importantes quando o assunto é git: branches.
+Agora é com você! Chegou a sua vez de criar e unir novas branches utilizando o nosso projeto base ou um projeto de sua preferência.
+
+Já teve a chance de praticar os comandos necessários para criar e unir novas branches? Oferecemos algumas sugestões na seção Opinião do instrutor.
+
+Opinião do instrutor
+
+Execute o comando git branch para visualizar que apenas a branch main existe em seu repositório local;
+Com o comando git switch -c {nome_da_branch}, crie uma nova branch. Nela você pode adicionar novos commits;
+Após adicionar os commits na nova branch, volte para a main com git switch main;
+Adicione novos commits na main simulando uma nova funcionalidade que foi mesclada;
+Volte para a sua branch criada no Passo 2 e a atualize com git rebase main. Isso aplicará os novos commits da main no início dessa branch;
+Volte para a main e mescle o trabalho com o git merge. Se quiser forçar um merge commit, mesmo sendo possível realizar o fast forward, execute git merge --no-ff {nome_da_branch}.
+Se surgirem dúvidas, não hesite em recorrer ao nosso Fórum.
+
+@@10
+O que aprendemos?
+
+Nessa aula, nós:
+Entendemos o problema que branches resolvem ao colaborar com uma equipe em um projeto, organizando a colaboração, evitando conflitos e garantindo que uma funcionalidade seja enviada apenas quando estiver pronta;
+Conhecemos os comandos git branch e git switch para manipular as branches existentes;
+Vimos como unir o trabalho de duas branches com o comando git merge;
+Aprendemos sobre as abordagens de merge commit e fast forward do git merge;
+Conseguimos reescrever a história de uma branch utilizando o comando git rebase.
