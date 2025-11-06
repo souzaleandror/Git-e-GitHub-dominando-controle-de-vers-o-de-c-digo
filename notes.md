@@ -1205,3 +1205,246 @@ Conhecemos os comandos git branch e git switch para manipular as branches existe
 Vimos como unir o trabalho de duas branches com o comando git merge;
 Aprendemos sobre as abordagens de merge commit e fast forward do git merge;
 Conseguimos reescrever a história de uma branch utilizando o comando git rebase.
+
+#06/11/2025
+
+@03-Manipulando as versões
+
+@@01
+Guardando para depois
+
+Transcrição
+
+Olá, pessoal! Boas-vindas de volta a mais uma aula deste curso, onde estamos nos aprofundando nos conhecimentos de Git.
+Agora, imagine o seguinte cenário: Estamos desenvolvendo uma funcionalidade grande. Estamos no meio da implementação dela, ela ainda não está pronta. No entanto, precisamos interromper o trabalho nela para resolver um bug urgente ou mudar nosso foco para alguma correção pequena que seja urgente. Ou seja, queremos interromper nosso trabalho.
+
+Como estamos no meio de uma funcionalidade, nosso código pode não estar compilando ou não estar em um estado que possamos criar um commit.
+
+Lembre-se: sempre criamos commits quando o nosso projeto está em um estado funcional.
+Se o código está compilando, se está, pelo menos, executando da forma esperada. Portanto, não vamos criar um commit com nosso código em um estado incompleto.
+
+O que fazemos se nos deparamos com um cenário onde estamos no meio da implementação de uma funcionalidade, mas precisamos interromper aquele processo? Vamos simular o cenário da criação de uma nova funcionalidade.
+
+Criando uma nova funcionalidade
+Primeiro, se estamos criando uma nova funcionalidade, vamos criar um novo branch. Portanto, escreveremos no terminal git switch -c movendo-detalhes.
+
+Estamos em uma nova branch, podemos criar nossa nova funcionalidade. Abrimos então o arquivo app.js e queremos mover a chamada de função exibirMensagemInicial(), que está na linha 17 para a linha 5 para deixar a declaração das variáveis, depois a chamada de função e depois as declarações das funções.
+
+Como podemos fazer isso? Vamos recortar a linha exibirMensagemInicial() e movê-la para cima. Só que fomos interrompidos: Um bug muito urgente surgiu, então precisamos trabalhar em outra coisa. O que acontece?
+
+Não podemos criar um commit agora. Nosso projeto está em um estado inválido, removemos a chamada de função. Além disso, se executarmos um git status, temos modificações. Portanto, não podemos começar a trabalhar em outra coisa e ir para outro branch, porque o arquivo app.js está modificado. Precisamos desfazer essa alteração, mas guardar o que já alteramos.
+
+Guardando as alterações feitas
+O que queremos fazer é engavetar a alteração que fizemos até agora, mas sem criar um commit. Queremos guardar ela para depois, queremos estocar ela para depois poder recuperar e continuar trabalhando. E é exatamente isso que o comando git stash faz. Ele guarda uma alteração para continuarmos trabalhando nela depois.
+
+Se executarmos o comando git stash, ele vai pegar tudo o que está no nosso estado atual e estocar. Ele vai guardar para que possamos recuperá-lo depois. Portanto, ele vai guardar essa alteração que fizemos de recortar a linha exibirMensagemInicial() e desfazê-la.
+
+Está guardada a alteração, mas a partir disso podemos voltar a trabalhar. O git stash nos diz que salvou o nosso estado na nossa gaveta, no nosso estoque ("Saved working directory and index state WIP on movendo-detalhes: linha do script"). Portanto, se voltarmos para o nosso arquivo, repare que ele está no seu estado válido, ele voltou lá com a nossa alteração.
+
+Digamos que já cuidamos do bug e queremos voltar para esse branch de nova funcionalidade e retomar o trabalho. Como podemos recuperar o que está no nosso stash?
+
+Recuperando as alterações
+Podemos executar o comando git stash pop. Esse pop, ele aplica o que tiver na nossa gaveta, no nosso estoque.
+
+Após executarmos o git stash pop, a função não está mais na linha 12. Então, podemos continuar a implementação e trazê-la para cima. Agora temos o nosso estado finalizado.
+
+Portanto, o git stash guarda uma alteração para que ela possa ser retomada depois.
+Ele guarda um estado para que possamos retomá-lo depois. E normalmente é utilizado quando estamos no meio de uma alteração, queremos guardar algo rapidamente para corrigir um bug e trabalhar em outra coisa rapidamente e depois voltar a trabalhar nisso. Portanto, não podemos criar um commit.
+
+Um detalhe: vamos criar esse stash novamente. Vamos limpar o nosso terminal e rodar o git stash. Se executarmos o comando git stash list, ele lista tudo o que está nesse nosso estoque. E repare que temos duas coisas no nosso stash, já tínhamos adicionado algo antes.
+
+$ git stash list
+stash@{0}: WIP on movendo-detalhes: c53eb16 Quebrando linha do script
+stash@{1}: WIP on main: c53eb16 Quebrando linha do script
+$
+COPIAR CÓDIGO
+Digamos que não queremos mais nada na stash. Ou então, queremos fazer o git stash pop primeiro para recuperar essa nossa alteração. Feito o git stash pop, a nossa alteração voltou a aparecer e estamos com o nosso código no estado correto.
+
+Mas repare que os nomes que esse nosso git stash list nos mostra não são muito descritivos. Ele coloca um work in progress (WIP) na branch que estávamos e o último commit antes de adicionarmos esse stash. Portanto, isso não é muito útil.
+
+Limpando as alterações guardadas
+Vamos mostrar duas coisas. A primeira é que temos aqui no nosso git stash list algo anterior que fizemos alguns testes que não fazem parte dessa aula. Portanto, como podemos limpar a nossa stash, apagar tudo? Podemos fazer um git stash clear, limpamos a nossa stash. Portanto, se fizermos o git stash list, não tem mais nada lá.
+
+Acrescentando uma descrição à stash
+Agora, se quisermos adicionar algo a nossa stash, mas com um nome mais descritivo, podemos fazer, ao invés de só git stash, vamos escrever git stash push -m. E aí, podemos adicionar uma mensagem qualquer, será "Movendo chamada de função".
+
+git stash push -m "Movendo chamada de função"
+COPIAR CÓDIGO
+Quando voltamos lá para o nosso código, a alteração foi desfeita. E se fizermos um git stash list, temos um nome bem mais descritivo: Movendo chamada de função. Agora, sabemos o que isso significa. E podemos adicionar várias coisas na stash, como mostramos.
+
+Por exemplo, temos algo na nossa stash e vamos adicionar algo mais. Como, por exemplo, vamos remover todas essas quebras de linhas no final. Fizemos várias quebra de linha, estamos no meio da implementação, tivemos que parar de novo. Usamos o comando git stash novamente.
+
+Fizemos um git stash, adicionamos essa modificação lá na nossa lista de modificações que queremos rever depois. Se escrevermos git stash list, ele listará o movendo chamada de função e a última stash que não tem um nome específico. Portanto, ela aparece como WIP on movento-detalhes: c53eb16 Quebrando linha do script.
+
+Entendendo a pilha de modificações
+Se fizermos um git stash pop, ele sempre vai aplicar a última alteração que adicionamos. Portanto, ele sempre pega esse de índice zero. Ele sempre vai empilhando modificações.
+
+O que isso quer dizer? Imagina que essa nossa stash é uma gaveta e nessa gaveta estamos guardando pratos. Portanto, abrimos a gaveta, colocamos um prato. Na gaveta, adicionamos outro prato em cima. Se vamos pegar um prato, pegamos o prato que está em cima, certo? Portanto, é o último que adicionamos. Isso é o conceito de pilha.
+
+Temos aqui na stash uma pilha de modificações. Portanto, quando fazemos pop, sempre aplicamos a última que adicionamos. Fizemos um git stash pop, temos a remoção das quebras de linha.
+
+Portanto, se fizermos nosso git stash list de novo, só temos um e agora o nosso índice zero é aquela movendo chamada da função. Só que, imagina o seguinte cenário: Removemos todas as quebras de linha e vamos fazer o git stash de novo.
+
+Retomando alterações anteriores à versão mais recente
+No nosso git stash list, temos lá a movendo chamada da função, que agora é o índice 1. E o novo índice zero é essa remoção de quebras de linha lá do final. Só que o que queremos voltar a trabalhar no que está guardado nesse índice 1.
+
+$ git stash list
+stash@{0}: WIP on movendo-detalhes: c53eb16 Quebrando linha do script
+stash@{1}: On movendo-detalhes: Movendo chamada de função
+$
+COPIAR CÓDIGO
+Portanto, se fizermos o git stash pop, não vai funcionar. Vamos pegar a última alteração que não é o que queremos. Portanto, nesses cenários, quando queremos aplicar algo que está na stash anterior à versão mais recente, podemos fazer o git stash apply e o índice, no nosso caso, o índice 1, que é o movendo chamada da função.
+
+Antes de executar, temos todas as quebras de linha no final do arquivo e a chamada da função está na linha 17. Vamos executar agora no nosso terminal, git stash apply 1. O que vai acontecer? Temos a nossa função sendo movida, mas todas as quebras de linha continuam lá no final.
+
+Se quisermos, podemos aplicar mais de um item de stash. Portanto, podemos fazer aqui o nosso git stash pop sem problema. Só que aí vamos ter um conflito.
+
+Podemos aplicar várias stashes se elas não estiverem no mesmo arquivo, se elas não forem conflitar com o que temos.
+Temos modificações no arquivo que seriam sobrescritas. Portanto, não vamos aplicar essa stash mais. Portanto, se fizermos um stash list, ele adicionou um novo detalhe lá na nossa stash.
+
+Para recapitular, se temos alguma alteração que precisamos adicionar ou salvar para depois, chamamos o comando git stash. O comando git stash vai adicionando mensagens no formato de pilha.
+
+Recapitulando:
+
+Se queremos pegar algo e aplicar uma alteração à última stash que adicionamos, usamos git stash pop;
+Se queremos aplicar alguma específica, usamos git stash apply;
+Se queremos adicionar algo na nossa stash com mensagem, usamos git stash push;
+Se queremos limpar a nossa stash, usamos git stash clear.
+Vamos desfazer a alteração de mover. Não queremos mover essa mensagem, queremos fazê-la voltar para onde ela estava originalmente. Portanto, agora temos o nosso código no estado original, certo?
+
+No entanto, se fizermos um git status, temos uma alteração ainda. Se fizermos um git diff, repare que essa alteração é invisível para nós.
+
+Portanto, provavelmente, o nosso Visual Studio Code apagou alguns espaços que estavam em uma linha. Só que não queremos comitar isso, queremos desfazer essa alteração. Como podemos desfazer alterações que estão prontas para serem adicionadas a um commit? Através do git. É isso que vamos fazer no próximo vídeo.
+
+@@02
+Limpando a stash
+
+Ao trabalhar em uma nova funcionalidade para um sistema, você precisou interromper o trabalho para uma correção urgente de um bug. Para guardar o trabalho em progresso que você estava desenvolvendo, o git stash foi utilizado. Após corrigir o bug em questão, você foi informado que a funcionalidade não será mais implementada, portanto, aquele trabalho que você guardou poderá ser descartado.
+Qual comando você utilizaria para apagar tudo que foi armazenado com o comando git stash?
+
+git stash clear --all.
+ 
+Alternativa incorreta
+git stash pop.
+ 
+O pop aplica determinado item da stash em nosso repositório e o remove da stash, mas não limpa nossa stash.
+Alternativa incorreta
+git stash drop.
+ 
+Alternativa incorreta
+git stash clear.
+ 
+O comando git stash clear limpa a stash, ou seja, apaga tudo que foi salvo com o comando git stash. Caso você queira remover apenas um único item da stash, você pode utilizar git stash drop.
+
+@@03
+Para saber mais: pop, drop e apply
+
+Os comandos pop, drop e apply do git stash possuem semelhanças e diferenças bem importantes, então vamos fazer um pequeno resumo de suas funcionalidades aqui:
+Apply
+O comando git stash apply espera um índice de um item na stash e o aplica ao repositório, porém, esse comando não remove o item da stash, ou seja, se após executar o comando git stash apply 1 você executar git stash list, o item referente ao índice 1 continuará na stash.
+
+Pop
+O git stash pop faz exatamente a mesma coisa que o git stash apply, porém, além de aplicar o item da stash, ele também o remove de lá. Esse comando, sem nenhum parâmetro extra, vai aplicar o último item adicionado à stash, mas nós também podemos informar um índice para ele, como git stash pop 1.
+
+Drop
+O git stash drop funciona exatamente como o pop, mas com uma simples diferença: ele apenas remove o item da stash, sem aplicá-lo em nosso repositório. Dessa forma, git stash drop remove o último item adicionado à stash, enquanto o git stash drop 1 remove da stash o item com índice 1.
+
+
+@@04
+Desfazendo alterações
+
+Transcrição
+
+Olá! Boas-vindas de volta. No último vídeo, nós falamos um pouco sobre a stash. E, no final, deixamos um pequeno problema não resolvido para levantar o cenário a seguir.
+Imaginem que nós estamos criando alguma modificação. Então, nós removeremos todas as linhas do final. Nesse ponto, temos vários arquivos modificados e alterados. Porém, nós percebemos que a implementação está incorreta ou a funcionalidade não será mais implementada. Basicamente, queremos descartar o que foi feito.
+
+Se temos apenas um arquivo, para descartar essa modificação, podemos fazer um Ctrl + Z. Mas, se temos vários arquivos, sair fazendo Ctrl + Z em muitos lugares pode ser bastante cansativo. Para isso, podemos utilizar o git.
+
+Descartando várias alterações
+Vamos limpar o terminal e executar um git status. Temos um arquivo que foi modificado, mas poderíamos ter vários. Por exemplo, também vamos modificar algo no index.html. Algo inválido: adicionamos várias quebras de linha.
+
+Então, nosso git status tem modificações. E o que queremos fazer é desfazer essas modificações. Nós não fizemos git add e não commitamos isso. Como não foi commitado, não é um revert, nem um reset. Não é um comando que já aprendemos no curso anterior.
+
+O que queremos fazer é restaurar o nosso local de trabalho para um estado válido, sem essas modificações. Então, queremos fazer um git restore.
+
+Podemos fazer o restore para algum estado específico, mas se não informarmos o estado, isso significa que a restauração será feita sem o que foi modificado. Ou seja, o último commit do nosso branch atual.
+Então, queremos fazer o restore de quê? Podemos fazer de app.js e de index.html um de cada vez. Ou fazer do ponto (git restore .). Assim como já aprendemos que o git add . adiciona o projeto todo, o git restore . restaura todo o projeto também. E esse ponto não é um significado especial do git.
+
+Na linha de comando, o ponto significa o diretório atual. Então, estamos fazendo o restore de tudo na pasta atual.
+Então, esse git restore vai fazer um Ctrl + Z no nosso projeto. Assim, as linhas que adicionamos no index sumiram, e aquelas alterações no nosso app.js também sumiram. Então, com isso, se fazemos um git status, temos o nosso projeto limpo novamente.
+
+E o git restore é um dos comandos que veio para substituir o git checkout. Então, o git checkout, como dissemos, faz muitas coisas. Uma das coisas que ele fazia é o restore. Com o git checkout -- ., temos o mesmo resultado.
+
+Então, novamente, vamos remover as quebras de linha e salvar. Se fizermos o git checkout -- ., ele desfaz as alterações. Então, temos todas as nossas linhas adicionadas de novo.
+
+Como falamos, esse restore restaura o projeto ou restaura arquivos específicos para algum ponto específico. Por padrão, ele faz o restore para head, ou seja, para o nosso último commit, que no nosso caso aqui é quebrando a linha do script.
+
+Mas e se quisermos fazer o restore para ver o nosso projeto ou ver um arquivo específico antes de corrigir a indentação, ou seja, indentando os botões? Queremos ver como o arquivo era em dado commit, como o nosso projeto todo era nesse outro commit.
+
+Então, conseguimos "viajar no tempo" também utilizando o git restore. E isso nós veremos no próximo vídeo.
+
+@@05
+Viajando no tempo
+
+Transcrição
+
+Olá, pessoal! Boas-vindas de volta. Como mencionamos anteriormente, o comando git restore pode restaurar estados de um arquivo ou de um projeto inteiro. Dissemos que queríamos "viajar no tempo", mas antes precisamos mostrar um detalhe interessante.
+Vamos supor que removemos todas as quebras de linhas extras que inserimos no arquivo. Estamos prontos para adicionar nosso app.js para fazer o commit.
+
+Adicionamos com o comando git add app.js, então, ele está no "stage", pronto para ser comitado. Isso é o que chamamos de "stage" ou "staging area". Mas, o que acontece se quisermos desfazer isso? Não estamos prontos para comitar. Queremos fazer mais alterações ou simplesmente desistir dessa modificação.
+
+Note que o próprio git já nos mostra que podemos fazer um restore do que está em nossa "staging area". Se fizermos git restore --staged, significa que estamos modificando algo que está dentro dessa "staging area", dentro de algo que fizemos com o git add.
+
+Assim, com git restore --staged app.js, não desfazemos a alteração, mas retornamos ao estado anterior. Agora, é como se não tivéssemos feito o git add. Observe que ele está pronto para fazermos o git add e as linhas, ainda estão removidas.
+
+Agora, se quisermos desfazer as alterações, fazemos o git restore app.js. Sendo assim, desfizemos as alterações. Repare a diferença entre o --staged e o staged.
+
+Um outro parâmetro que podemos passar para o restore é, suponha que queremos mover nosso index.html para o estado que estava quando fizemos o Merge branch 'nova-funcionalidade' into main.
+
+O que podemos fazer? Podemos copiar o hash do commit, fazer o git restore --source = e colá-lo em seguida. Queremos restaurar para esse estado nosso index.html. O comando inteiro ficará parecido com o seguinte:
+
+git restore --source = 5081a55bc92af2917c8519f16a7412b86ba3b1c2 index.html
+Quando fazemos isso, ele pega o index e o coloca no estado que estava nesse commit.
+
+Ao acessar o index, observe que tem algumas alterações: O nosso script está em uma linha só, a nossa tag de link não está indentada e os botões também não estão indentados. Ele retornou para esse estado. Se fizermos um git status, podemos modificar o arquivo a partir daquele estado e adicionar um novo commit, se quisermos.
+
+Mas, se quisermos apenas visualizar o arquivo e entender como ele estava naquele estado, podemos desfazer esse trabalho, ou seja, restaurar para o estado normal dele com o git restore index.html, que é equivalente a fazer --source = head.
+
+Fazer o restore sem esse --source é equivalente a fazer --source = head, que corresponde ao último commit que temos no branch atual.
+Agora, se fizermos o git status, temos nossa branch movendo-detalhes correta. Se fizermos um git log, nossa branch movendo-detalhes está no mesmo lugar que a branch main.
+
+Vamos voltar para a nossa branch com git switch main e vamos remover com git branch -d movendo-detalhes, que foi um branch que criamos apenas para simular a criação de uma nova funcionalidade, mas não chegamos a comitar nada lá.
+
+Nesse vídeo, aprendemos a manipular nossa "working tree", que é o que estiver em nosso projeto, mesmo que não tenhamos adicionado para commit.
+
+Quando temos algo indicado com modified, isso está na nossa "working tree", o nosso projeto, basicamente. Manipulamos também nossa staging area, que é o que está verde quando fazemos o git status, o que modificamos quando fazemos nosso git add.
+
+Aprendemos a manipular esses dois status com o git restore, seja removendo algo da nossa staging area com o git restore staged ou removendo algo da nossa working tree com o git restore sem o staged. Assim, aprendemos a manipular nosso código, a working tree e a staging area.
+
+Suponha que esse projeto, no estado que está, está aceitável. Queremos apontar que temos uma nova versão (a 0.1.0). Como podemos gerenciar versões ou marcar um checkpoint, um ponto onde queremos salvar e dar um nome para esse estado? Vamos falar sobre isso, sobre criar versões e gerar releases na próxima aula.
+
+@@06
+Faça como eu fiz: desfazendo alterações com Git
+
+Nesta aula, nós aprendemos sobre a stash e sobre o comando restore.
+Agora é sua vez! Chegou a hora de guardar o seu trabalho para o futuro e viajar no tempo com git utilizando o nosso projeto base ou um projeto de sua preferência.
+
+Já teve a chance de praticar os comandos necessários para salvar alterações, aplicá-las descartá-las ou reverter arquivos para um estado anterior? Oferecemos algumas sugestões na seção Opinião do instrutor.
+
+Opinião do instrutor
+
+Salve alterações não adicionadas para commit utilizando o comando git stash;
+Utilize o comando git stash list para visualizar os itens adicionados à stash;
+Faça uso dos comandos git stash pop e git stash drop para aplicar ou descartar itens da stash;
+Com o comando git restore, desfaça as alterações tanto da working tree quanto da staging area;
+Utilize o parâmetro --source, do comando git restore, para deixar determinado arquivo no estado específico de um commit que você escolher.
+Se surgirem dúvidas, não hesite em recorrer ao nosso Fórum.
+
+@@07
+O que aprendemos?
+
+Nessa aula, nós:
+Conhecemos o conceito de stash, que permite que guardemos trabalhos em progresso sem precisarmos fazer o commit, de forma que possamos retomar esse trabalho no futuro;
+Aprendemos a manipular a stash adicionando, aplicando e removendo itens dela com os comandos git stash pop, git stash drop, git stash apply e git stash clear;
+Conhecemos o comando restore, que altera o estado de determinado arquivo;
+Aprendemos o significado de working tree, que é o nome do estado atual do nosso código com todas as alterações, incluindo as não adicionadas para commit, e de staging area, que é onde ficam os arquivos ao realizarmos o git add.
