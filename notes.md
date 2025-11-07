@@ -1448,3 +1448,202 @@ Conhecemos o conceito de stash, que permite que guardemos trabalhos em progresso
 Aprendemos a manipular a stash adicionando, aplicando e removendo itens dela com os comandos git stash pop, git stash drop, git stash apply e git stash clear;
 Conhecemos o comando restore, que altera o estado de determinado arquivo;
 Aprendemos o significado de working tree, que é o nome do estado atual do nosso código com todas as alterações, incluindo as não adicionadas para commit, e de staging area, que é onde ficam os arquivos ao realizarmos o git add.
+
+#07/11/2025
+
+@04-Gerando entregas
+
+@@01
+Criando uma versão
+
+Transcrição
+
+No último vídeo, percebemos que o nosso projeto está em um estado que queremos distribuir, ou seja, que esteja pronto para, por exemplo, lançar uma versão. Imaginem um jogo, como Sonic ou Mario, onde passamos por alguns pontos no jogo, chamados checkpoints ou save points.
+Caso o personagem seja derrotado, ao invés de voltar no início do jogo, volta para aquele ponto. São pontos onde salvamos o estado do jogo. Podemos criar algo semelhante no Git. Podemos dar um nome para um ponto específico do nosso projeto.
+
+Criando commits com tags
+Por exemplo, no Terminal do VS Code, vamos executar o comando git log --oneline. Vemos que nossa HEAD no branch main, que está em um commit chamado Quebrando a linha do script. Este foi o último commit que criamos. Sabemos que um branch, conforme adicionamos novos commits. Logo, a HEAD muda de local.
+
+Queremos marcar um ponto no commit Quebrando a linha do script e torná-lo um save point, indicando que ele representa o lançamento da nossa versão 0.1.0, por exemplo. Ou qualquer outra versão. Portanto, conseguimos nomear pontos específicos do nosso código, e, no Git, chamamos esse processo de tag.
+
+Uma tag no Git é criada através do comando git tag nome_da_tag, que rodamos no Terminal. Por exemplo, vamos rodar o comando git tag v0.1.0. Assim, criamos uma tag na nossa HEAD, ou seja, no momento mais recente da branch que tivermos feito o commit. Após criarmos a tag e rodarmos o comando git log de novo, recebemos as informações do commit com a nossa tag
+
+$ git log
+COPIAR CÓDIGO
+commit c53eb1654ecc7a9ece1294ec68f78b4d8172189b (HEAD -> main, tag: v0.1.0,origin/nova-funcionalidade, origin/main, origin/HEAD, nova-funcionalidade)
+Author : Vinicios Dias <carlosv775@gmail.com>
+Date: Dat Dec 23 14:06:11 2023 -0300
+
+    Quebrando linha do script
+COPIAR CÓDIGO
+Dica: A tag pode ter qualquer nome. Utilizamos o nome v0.1.0 para parecer com uma versão de lançamento, porque faz bastante sentido para esse exemplo.
+Entendendo o funcionamento das tags
+Dessa forma, vamos descobrir o que acontece se adicionarmos outro commit. Por exemplo, no arquivo index.html, removeremos a quebra de linha entre o <head> e o <body>, na linha 16. Em seguida, faremos um novo commit, abrindo o terminal e rodando o comando git commit -m "Removendo quebra de linha". Após criarmos esse novo commit e fazermos um git log --oneline, notamos que a tag: v0.1.0 ainda aparece no commit anterior, que é o commit Quebrando a linha do script.
+
+502afbc6 (HEAD -> main) Removendo quebra de linha
+c53eb16c (tag: v0.1.0, origin/nova-funcionalidade, origin/main, origin/HEAD, nova-funcionalidade) Quebrando linha do script
+bc493a6c Corrigindo indentação
+COPIAR CÓDIGO
+Podemos rodar o git push origin main e o git push origin nova-funcionalidade. Após fazermos o push de tudo e rodarmos o git log --oneline, ainda teremos o retorno da tag: v.0.1.0 no commit Quebrando linha do script. Portanto, a tag nunca vai se mover, ela sempre vai apontar para o mesmo commit.
+
+Da forma como fizemos, a tag é um ponteiro nomeado para um commit específico: o nome que damos para algum commit. Dessa forma, conseguimos salvar o estado da aplicação naquele momento. Agora vamos tentar criar a tag v0.1.1.
+
+Criando tags para commits fora da HEAD
+Se rodarmos simplesmente git tag v.0.1.1, ele cria um commit no nosso HEAD. Porém, se quisermos, podemos criar uma tag para algum commit específico. Criaremos para o último commit: o "Removendo quebra de linha", tem o código 502afb6.
+
+Com o código que aparece no começo da linha de commit, podemos criar uma tag para qualquer commit no nosso histórico, através da estrutura: git tag nome_da_tag código_do_commit. No caso, executamos o git tag v0.1.1 502afb6 e, em seguida, ao executarmos o git log encontraremos as tags v0.1.0 e v0.1.1.
+
+git tag v0.1.1 502afb6
+git log
+COPIAR CÓDIGO
+commit 502afbb6235b26346a0efefec0a6b73431bf7d4703 (HEAD -> main, tag: v0.1.1, origin/main, origin/HEAD)
+Author: Vinicius Dias <carlosv775@gmail.com>
+Date:   Sat Dec 23 15:12:41 2023 -0300
+
+    Removendo quebra de linha
+
+commit c53eb1654ecc7a9ece1294ec68f78b4d8172189b (HEAD -> main, tag: v0.1.0,origin/nova-funcionalidade, origin/main, origin/HEAD, nova-funcionalidade)
+Author : Vinicios Dias <carlosv775@gmail.com>
+Date: Dat Dec 23 14:06:11 2023 -0300
+
+    Quebrando linha do script
+COPIAR CÓDIGO
+Então, se fizermos git log, temos agora nossas duas tags, 0.1.1 e a v0.1.0. Se quisermos ver todas as nossas tags, é só executarmos git tag no terminal, e ele mostrará para nós.
+
+git tag
+COPIAR CÓDIGO
+v0.1.0
+v0.1.1
+
+Se quisermos, podemos enviar a nossa tag para o nosso repositório remoto, o GitHub, com o comando git push origin v.0.1.0, que fará o push da tag que passamos o nome. Ou podemos executar git push origin --tags, que fará o push de todas as tags.
+
+Conferindo as tags no GitHub
+Em seguida, podemos acessar o GitHub e, na coluna da esquerda, na seção "Relaeases" (Lançamentos), temos um link indicando que existem duas tags. Ao clicarmos nesse link, vamos para a página de Tags, onde conseguimos visualizar todas as tags do projeto.
+
+Quando criamos uma tag, conseguimos fornecer, através do GitHub, opções de download do projeto em arquivos compactados, tanto no formato .zip, quanto no .tar.gz, no estado em que criamos a tag. Um detalhe que talvez você reparou e possa perguntar: "Não tem nenhuma mensagem para cada uma das versões que criamos? Não conseguimos definir uma mensagem ou algumas informações a mais?".
+
+Para isso, existem as Annotated Tags, ou tags com anotações. Vamos descobrir como podemos criar uma tag com algumas informações a mais no próximo vídeo.
+
+@@02
+Detalhes da versão
+
+Transcrição
+
+Anteriormente, criamos tags, que são basicamente um ponteiro para algum commit. No entanto, também conseguimos criar annotated tags (tags com anotações), que além de serem um ponteiro para um commit, podem possuir uma mensagem, um autor, entre outras informações.
+Apagando uma tag
+Vamos fazer com que a tag v.0.1.1 seja annotated. Para isso, precisamos apagar essa tag. No nosso GitHub, no canto direito da tag v0.1.1, clicaremos em "… > Delete tag" para apagá-la do repositório remoto. Uma mensagem de confirmação aparece no centro da tela, e basta clicarmos em "Delete this tag" (deletar essa tag) no canto inferior direito da mensagem.
+
+Voltando ao VS Code, onde temos nosso repositório local, abriremos o Terminal, onde vamos rodar o comando git tag -d v0.1.1", para removemos a tag localmente também. Concluída esta etapa, se fizermos o nosso git log, não encontramos mais a tag v.0.1.0.
+
+Criando uma Annotated tag
+Agora queremos criar uma nova tag com uma informação a mais, por exemplo, uma mensagem. Para isso, podemos usar o comando git tag -a nome_da_tag -m "mensagem da tag", sendo o -a de annotated (anotação) e o -m de message (mensagem). Chamaremos a tag de v0.1.1 e passaremos a menagem "Lançamento da versão 0.1.1.
+
+git tag -a v0.1.1 -m "Lançamento da versão 0.1.1"
+COPIAR CÓDIGO
+Ao executarmos esse comando, temos uma tag com tem informações a mais do que apenas um commit. Faremos o push dessa tag, com o comando git push origin v0.1.1 e retornaremos a página de tags do GitHub.
+
+Analisando uma Annotated Tag no GitHub
+Ao recarregarmos a página, e clicarmos no retângulo com reticências ao lado do nome "v0.1.1", abriremos a mensagem "Lançamento da versão 0.1.1", abaixo do nome da tag.
+
+Também podemos clicar no retângulo com reticências ao lado do nome da tag "v0.1.0", e notamos que a mensagem que aparece é a do commit. Já na "v0.1.1", temos uma mensagem específica da nossa tag. Portanto, agora uma annotated tag, com informações a mais.
+
+A annotated tag, além da mensagem exibida, carrega informações da pessoa autora da tag e a data que a tag foi criada, enquanto a tag comum é apenas um ponteiro para o commit. Existe essa pequena diferença entre uma tag que é annotated e uma tag que não é annotated.
+
+Outro detalhe interessante é que esse parâmetro -a é opcional, porque se passamos alguma informação para a nossa tag, como uma mensagem (-m), o Git já entende que essa tag é annotated. Portanto, conseguimos criar uma annotated tag mesmo sem o parâmetro -a.
+
+Conclusão
+Com isso, aprendemos que git tag nome_da_tag -m já cria uma tag com mensagem, ou seja, uma annotated tag. Voltando ao GitHub, na parte superior esquerda da lista de tags, temos as abas "Release" e "Tags". A aba Releases (lançamentos) pode trazer algumas informações a mais, então, no próximo vídeo, conheceremos mais sobre essa aba e criaremos um release (lançamento) do nosso projeto.
+
+@@03
+Gerando uma release
+
+Transcrição
+
+Aprendemos um pouco sobre tags. Um detalhe que esquecemos de mostrar é que, nas Annotated Tags, como mencionamos, há informações ocultas que podemos verificar.
+Podemos acessar o terminal e digitar o seguinte:
+
+git tag -v v0.1.1
+COPIAR CÓDIGO
+Para verificar a tag v 0.1.1, serão exibidas informações indicando para qual commit ela aponta, o tipo (podemos criar uma tag para outra coisa, mas vamos focar no tipo de commit aqui), o nome dessa tag, quem a criou e sua mensagem. Temos, portanto, as informações dessa tag.
+
+Se tentarmos fazer o mesmo para a tag que não é annotated, teremos um erro, porque o nome v 0.1.0 é basicamente um apelido para um commit, então ela não existe como tag propriamente dita. Essa é uma diferença entre Annotated Tags e Unannotated Tags.
+
+Releases
+Agora, vamos falar sobre releases. Imagine o seguinte cenário: lançamos uma nova versão. Nessa nova versão, queremos disponibilizar, por exemplo, se for um projeto compilado, um binário compilado desse projeto, um changelog, um documento mostrando as modificações dessa versão.
+
+Podemos disponibilizar alguns artefatos além do projeto em si.
+
+É para isso que serve uma release no GitHub. Se você quer disponibilizar um documento a mais, uma descrição diferente para essa release, além da tag, ou se quer disponibilizar um arquivo binário, por exemplo, resultante do projeto, com uma release você pode fazer isso.
+
+Releases podem ser criadas automaticamente, através de GitHub Actions, por exemplo, mas aqui vamos criar uma manualmente, até porque não temos nenhum projeto de compilação, temos apenas HTML, JavaScript e CSS.
+
+Como criar releases
+Vamos clicar no botão "Releases" e escolher uma tag para criá-la. Essa release será a partir de nossa tag v11. Podemos criar o título dessa release, que será: "lançamento da v0.1.1".
+
+Poderíamos ter um título mais chamativo, cada projeto terá um padrão de títulos, o título pode ser a versão ou qualquer outra coisa que você preferir.
+
+Em seguida, vamos criar as nossas release notes, ou seja, as alterações que foram feitas nessa release, nessa nova versão. Inclusive, isso pode ser feito automaticamente com o botão "Generate release notes". Ele trará os detalhes de todos os pull requests, etc.
+
+No nosso caso, como não temos isso, ele mostra o full change log, mostrará o diff entre 0.1.0 e 0.1.1. Ele já coloca um link para o GitHub mostrando aquele diff de uma versão para outra, isso é bem interessante.
+
+E no campo de inserir arquivos poderíamos colocar um arquivo binário, por exemplo. Se tivéssemos um projeto compilado de nossa aplicação, selecionaríamos esse projeto compilado, adicionaríamos aqui, e esse arquivo binário estaria disponível para download quando alguém acessar nossa página de release.
+
+Para publicar a release basta clicar em "Publish release".
+
+Agora, temos uma página de lançamento do nosso projeto.
+
+Nessa página de lançamento, a pessoa pode ver toda a documentação, no nosso caso, colocamos apenas o full change log, com um link para uma página que mostra tudo o que foi alterado, que foi uma linha.
+
+Poderíamos ter todo um change log, toda uma documentação específica desse lançamento. E poderíamos ter em Assets, um arquivo binário. Além do projeto em si, que pode ser baixado como zip, poderíamos ter algum artefato a mais. Um binário, por exemplo, compilado. Se fosse um projeto Java, poderíamos ter um .jar, ou coisa do tipo. Algo que seja referente a esse lançamento.
+
+Conclusão
+Portanto, as releases no GitHub são utilizadas para esse cenário. Quando queremos disponibilizar uma nova versão, criamos uma tag, a partir dessa tag podemos gerar uma release.
+
+Novamente, isso pode ser gerado automaticamente a partir de uma GitHub Action, mas aqui não estamos falando de automatização, então criamos manualmente uma release a partir de uma tag, que é uma funcionalidade muito interessante do GitHub.
+
+Agora que já falamos do GitHub, vamos voltar para o Git, vamos voltar para nossa linha de comando, e entender alguns detalhes a mais que podemos fazer. Por exemplo, pegar um commit específico e adicionar um novo branch. Vamos voltar para a linha de comando e aprender mais alguns detalhes sobre Git.
+
+@@04
+Assets de uma release
+
+Maria está trabalhando em um projeto de um jogo para Windows, ou seja, a partir desse projeto é possível gerar um arquivo executável do Windows, o famoso .exe. Maria criou uma release no GitHub desse projeto e adicionou um arquivo .exe como um dos arquivos binários da release para que as pessoas possam realizar o download diretamente de seu jogo. Porém, além desse .exe, outros 2 arquivos ficaram disponíveis: um .zip e um .tar.gz.
+O que são os arquivos .zip e .tar.gz que ficam disponíveis por padrão ao criar uma release no GitHub?
+
+São arquivos de criptografia necessários para utilizar o projeto fora do GitHub.
+ 
+Alternativa incorreta
+São arquivos com todo o código fonte em formatos específicos do Windows e Linux.
+ 
+Alternativa incorreta
+É o arquivo binário (.exe) em formatos comprimidos.
+ 
+Alternativa incorreta
+São arquivos com todo o código fonte em formatos comprimidos.
+ 
+Esses arquivos são o projeto em si, comprimidos em dois formatos diferentes (Zip e GZip). Dessa forma, pessoas que não utilizem git também podem ter acesso ao código fonte dessa release.
+
+@@05
+Faça como eu fiz: criando tags e releases
+
+Nesta aula, nós aprendemos sobre tags, tags anotadas (Annotated tags) e releases do GitHub.
+Agora é com você! Chegou a sua vez de criar tags e releases utilizando o nosso projeto base ou um projeto de sua preferência.
+
+Já teve a chance de praticar os comandos necessários para criar tags e releases? Oferecemos algumas sugestões na seção Opinião do instrutor.
+
+Opinião do instrutor
+
+Utilize o comando git tag {nome_da_tag} para criar uma tag apontando para o HEAD atual;
+Com o comando git tag {nome_da_tag} {hash_de_um_commit}, crie uma tag apontando para um commit específico;
+Remova a primeira tag com git tag -d {nome_da_tag};
+Crie a tag novamente, mas agora com uma mensagem, utilizando git tag -a {nome_da_tag} -m “Mensagem da tag”;
+Envie as tags para o GitHub com git push;
+Crie uma release no GitHub a partir de uma das tags.
+Se surgirem dúvidas, não hesite em recorrer ao nosso Fórum.
+
+@@06
+O que aprendemos?
+
+Nessa aula, nós:
+Conhecemos o conceito de tags do git e vimos que elas são uma espécie de ponteiro para um commit específico, sendo comumente utilizadas para criação de versões;
+Aprendemos que tags anotadas ou annotated tags são tags com alguma informação a mais, como uma mensagem. Annotated tags carregam consigo seu autor e data de criação e isso pode ser visto com o comando git tag -v;
+Vimos como gerar uma release no GitHub, inclusive adicionando arquivos que possam ser binários compilados de nossos projetos.
