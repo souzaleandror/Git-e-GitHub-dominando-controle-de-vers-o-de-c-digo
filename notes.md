@@ -1647,3 +1647,292 @@ Nessa aula, nós:
 Conhecemos o conceito de tags do git e vimos que elas são uma espécie de ponteiro para um commit específico, sendo comumente utilizadas para criação de versões;
 Aprendemos que tags anotadas ou annotated tags são tags com alguma informação a mais, como uma mensagem. Annotated tags carregam consigo seu autor e data de criação e isso pode ser visto com o comando git tag -v;
 Vimos como gerar uma release no GitHub, inclusive adicionando arquivos que possam ser binários compilados de nossos projetos.
+
+#07/11/2025
+
+@05-Controle sobre commits
+
+@@01
+Pegando um commit
+
+Transcrição
+
+Olá, pessoal! Bem-vindos de volta a mais uma aula desse curso de Git.
+Queremos levantar a seguinte hipótese: você está trabalhando em uma funcionalidade e outra pessoa ou equipe está trabalhando em outra branch, em uma funcionalidade diferente. No entanto, ambas as branches precisam de um mesmo pré-requisito.
+
+Por exemplo, as duas equipes estão implementando funcionalidades diferentes, mas que dependem da criação de uma mesma tabela. Portanto, existe uma modificação no código que cria essa tabela no banco de dados. Essas duas branches precisam disso.
+
+Será que as duas equipes precisam fazer manualmente o trabalho em branches separadas? Porém, na hora de mesclar, isso daria conflito.
+
+Como podemos reaproveitar um commit de uma branch em outra branch?
+
+Simulando o cenário
+Vamos simular esse cenário. Já temos a branch main e nova-funcionalidade.
+
+Agora, vamos criar uma branch chamada funcionalidade1, usando o comando git switch -c.
+
+git switch -c funcionalidade1
+Depois, vamos voltar para main e criar uma nova branch chamada funcionalidade2.
+
+git switch main
+git switch -c funcionalidade2
+Na branch funcionalidade2, vamos quebrar a linha do título Jogo JS na tag <title> e adicionar esse commit.
+
+index.html:
+<title>
+    JS Game
+</title>
+Vamos usar o git add em index.html e depois dar um git commit com a mensagem "Quebrando linha no título".
+
+git add index.html
+git commit -m "Quebrando linha no titulo"
+Vamos adicionar alguma outra informação, como quebrar a linha no <h1> também:
+
+index.html:
+<h1>
+    Descubra o <span class="container__texto-azul">numero secreto</span>
+</h1>
+Agora, vamos fazer outro commit.
+
+git add index.html
+git commit -m "Quebrando linha no H1"
+Nós fizemos isso rapidamente, pois não é nada novo. Apenas alteramos dois detalhes no index.html e fizemos dois commits na branch funcionalidade2.
+
+Pegando um commit
+Agora, vamos para a branch funcionalidade1.
+
+git switch funcionalidade1
+Queremos adicionar a quebra de linha no nosso parágrafo, mas também precisamos da quebra de linha no nosso título.
+
+Como podemos pegar um commit de outro branch e aplicar, sem precisar copiar o código?
+
+Dica: ao fazer git log com o nome de uma branch, ele vai mostrar o log daquela branch, e não do branch atual.
+Vamos fazer um git log de funcionalidade2:
+
+git log funcionalidade2
+Podemos copiar o hash do commit "Quebrando linha no título".
+
+commit 92a316337bdd6619dc2070fe185759dc864f2801 (funcionalidade2)
+Author: Vinicius Dias <carlosv775@gmail.com>
+Date: Sat Dec 23 15:28:08 2023 -0300
+Quebrando linha no H1
+
+commit 609bc79b23305a1db648811ec72ec067e1806df
+Author: Vinicius Dias <carlosv775@gmail.com>
+Date: Sat Dec 23 15:27:54 2023 -0300
+Quebrando linha no titulo
+Podemos apertar "Q" para sair do log.
+
+Quando chamamos git branch, nos certificamos que estamos na funcionalidade1. Queremos pegar aquele commit que está na funcionalidade2 e aplicar no branch atual.
+
+Então, queremos buscar um commit, e o nome disso é cherry-pick. Vamos executar o git cherry-pick com o hash daquele commit.
+
+git cherry-pick 609bc79b23305a1db648811ec72ec067e1806df
+O que isso vai fazer? Vai pegar o commit com esse hash e aplicar no branch atual.
+
+Com isso, ele pegou aquele commit com a mensagem "Quebrando linha no título". Podemos conferir que a modificação já foi aplicada ao index.html, pois o título está em uma nova linha.
+
+Se fazemos o git log, temos exatamente aquele commit "Quebrando linha no título", depois do "Removendo quebra de linha". Isso significa que aplicamos aquele commit a esse branch.
+
+git log
+Com isso, temos um novo commit sendo aplicado na branch.
+
+commit 609bc79b23305a1db648811ec72ec067e1806df (HEAD -> funcionalidade1)
+Author: Vinicius Dias <carlosv775@gmail.com>
+Date: Sat Dec 23 15:27:54 2023 -0300
+Quebrando linha no titulo
+
+commit 502afb6235b2634a60fefece0a6b73431bf7d4703 (tag: v0.l.l, tag: teste, origin/main, origin/HEAD, main)
+Author: Vinicius Dias <car10sv775@gmai1.com>
+Date: Sat Dec 23 15:12:41 -0300
+Removendo quebra de linha 
+O cherry-pick serve exatamente para esses cenários, quando duas funcionalidades precisam da mesma alteração. Então pegamos um commit específico para o branch atual.
+
+Com isso, conseguimos fazer push dos nossos branches funcionalidade1 e funcionalidade2, e esses dois branches vão ter os seus respectivos commits.
+
+git push origin funcionalidade1 funcionalidade2
+Dessa forma, conseguimos selecionar um commit específico e aplicá-lo no nosso branch atual de forma bastante simples com o cherry-pick.
+
+Agora, vamos voltar para a main para fazer o merge tanto da funcionalidade2 quanto da funcionalidade1
+
+git switch main
+git merge funcionalidade2
+git merge funcionalidade1
+Com isso, temos todas as funcionalidades na nossa main e podemos enviar as alterações:
+
+git push origin main
+Próximos passos
+Agora, queremos entender quem foi ou quando foi que uma quebra de linha foi adicionada no nosso título. Isso pode ser útil em vários cenários.
+
+No próximo vídeo, vamos mostrar como descobrir quando e por quem determinada linha foi modificada.
+
+@@02
+Encontrando o autor
+
+Transcrição
+
+No último vídeo, levantamos o seguinte cenário: queremos saber quando uma determinada modificação foi inserida e em qual contexto utilizaríamos esse tipo de funcionalidade. Por que precisaríamos saber disso?
+Encontrando o autor
+Imagine que você é novo em uma empresa e está desenvolvendo ou corrigindo algo. Você quer entender melhor um pedaço de código, pois está com dúvidas. Então, você verifica quem foram as pessoas que trabalharam naquela função ou método para poder perguntar a elas e esclarecer suas dúvidas.
+
+No entanto, além desse bom uso da ferramenta, infelizmente, é bastante comum um mau uso da mesma para apontar culpados. Por exemplo, você encontrou um bug na aplicação e executa o comando para descobrir quem adicionou aquele bug para culpar essa pessoa. Isso é, definitivamente, um mau uso da ferramenta.
+
+Precisamos ressaltar que é um mau uso, pois o nome desse comando não ajuda muito.
+
+O nome do comando que mostra quem alterou cada uma das linhas do arquivo é git blame.
+O termo blame vêm do inglês e significa culpar. Portanto, git blame mostra quem é o "culpado" por cada uma das linhas do arquivo.
+
+Por exemplo, ao fazer git blame de index.html, ele exibirá aquele arquivo inteiro mostrando, em cada linha, qual é o commit responsável por aquela linha existir, qual é o último commit que modificou aquela linha.
+
+git blame index.html
+COPIAR CÓDIGO
+Por exemplo, o commit que gerou as duas primeiras linhas do index.html foi criado por Rodrigo Ferreira, em setembro de 2023. E, logo no início, também mostra o hash do commit que gerou essa linha.
+
+^250c665 (Rodrigo Ferreira 2023-09-05 14:59:21 -0300 1) <!DOCTYPE html>
+^250c665 (Rodrigo Ferreira 2023-09-05 14:59:21 -0300 1) <html lang="pt-br">
+COPIAR CÓDIGO
+Um detalhe interessante é que esse commit começa com um acento circunflexo. Isso indica que é o commit original, isto é, o primeiro commit desse projeto.
+
+Podemos copiar o hash do commit, sem o acento circunflexo, pressionar "Q" para sair desse git blame e fazer um git show com esse hash:
+
+git show 250c665
+COPIAR CÓDIGO
+Assim, verificamos que esse é realmente o primeiro commit do projeto.
+
+commit 250c665bd8d36acb4e1dd4689730fdb64e2841d5
+Author: Rodrigo Ferreira <rodrigo.alura87@gmail.com>
+Date: Tue Sep 5 14:59:21 2023 -0300
+projeto inicial
+COPIAR CÓDIGO
+Vamos limpar o terminal e voltar para o comando git blame com a seta para cima do teclado.
+
+Se analisamos a tag de <title>, descobrimos que o responsável por essas modificações foi o Vinicius e em qual data foi feito o commit.
+
+Ele também mostra qual é o commit responsável por essas três linhas, ou seja, o último commit que modificou essas três linhas.
+
+609bc79b (Vinicius Dias 2023-12-23 15:27:54 -0300 14) <title>
+609bc79b (Vinicius Dias 2023-12-23 15:27:54 -0300 14)     Jogo JS
+609bc79b (Vinicius Dias 2023-12-23 15:27:54 -0300 14) </title>
+COPIAR CÓDIGO
+Algumas IDEs mostrarão essas informações diretamente no arquivo. Com o Visual Studio Code, seria necessário instalar alguma extensão para exibi-las.
+
+Poderíamos sugerir alguma extensão, mas elas são menos estáveis do que o próprio Visual Studio Code. Portanto, podemos mostrar uma extensão hoje que talvez não exista amanhã ou depois. Por isso, sugerimos que você procure alguma extensão de git que possa trazer essa funcionalidade.
+
+Para que você entenda como seria essa funcionalidade, abriremos outra IDE para mostrar como seria exibido o git blame.
+
+Bastaria clicar em um arquivo com o botão direito e escolher "Git > Annotate with Git Blame".
+
+Ele já mostra, ao lado de cada uma das linhas enquanto mexemos no arquivo, quem é o responsável e quando foi feita cada modificação naquela linha.
+
+Por exemplo, se queremos saber sobre o <title>, podemos clicar na informação e ele já mostra num git log quando foi feito esse commit e a mensagem de commit com os detalhes.
+
+Também conseguimos verificar que só um arquivo foi modificado nesse commit e assim em diante.
+
+Em uma IDE, conseguiríamos visualizar esse git blame de forma mais amigável. No Visual Studio Code, que é um editor de código e não é uma IDE, você pode utilizar alguma extensão.
+
+Sugerimos que você pesquise por alguma extensão possível para essa funcionalidade.
+
+@@03
+Utilizando o Git Blame
+
+Pedro está trabalhando em um novo projeto e está repleto de dúvidas. Ele se deparou com uma função no código e gostaria de perguntar a alguém sobre seu funcionamento. Para que Pedro pudesse descobrir a quem fazer perguntas sobre esse pedaço de código, ele utilizou o comando git blame, informando o nome do arquivo que contém o código em questão.
+O que será informado ao Pedro ao executar o comando git blame?
+
+A autoria (e hash) do último commit aplicado àquele arquivo.
+ 
+Alternativa incorreta
+A última linha do arquivo com informações da autoria (e hash) do último commit aplicado à ela.
+ 
+O comando git blame mostra muito mais informações do que apenas a última linha do arquivo.
+Alternativa incorreta
+O arquivo completo com a informação de quem o alterou pela última vez.
+ 
+Alternativa incorreta
+O arquivo completo com informações da última alteração de cada uma de suas linhas.
+ 
+O comando git blame exibe todas as linhas de determinado arquivo com uma informação extra: o autor (e hash) do último commit que tocou cada uma dessas linhas. Dessa forma ele pode ver quais pessoas já podem ter trabalhado na função citada no exercício e fazer as perguntas para essas pessoas.
+
+@@04
+Desafio: extensões do VS Code
+
+Que tal analisar algumas opções de extensões para o Visual Studio Code que exibem as anotações do git blame como em uma IDE? Como desafio (não obrigatório), propomos essa busca para que você consiga visualizar os detalhes da última modificação de cada linha diretamente no editor.
+Dica: há extensões, como o GitLens, que fazem mais do que apenas exibir as anotações de blame. Vale a pena ver algumas alternativas do tipo.
+
+https://marketplace.visualstudio.com/items?itemName=eamodio.gitlens
+
+Opinião do instrutor
+
+Aceite o desafio e compartilhe as extensões que você mais gostar no Discord com os demais colegas. Vamos gostar de acompanhar suas sugestões!
+
+@@05
+Faça como eu fiz: executando Cherry-pick e Blame
+
+Nesta aula, nós controlamos ainda mais o nosso projeto utilizando git.
+Agora é a sua vez! Chegou a sua hora de utilizar um commit específico de uma branch em outra e de visualizar os detalhes fornecidos pelo git blame. Você pode utilizar o nosso projeto base ou um projeto de sua preferência.
+
+Já teve a chance de praticar os comandos necessários para utilizar um commit específico de uma branch em outra e para visualizar os detalhes fornecidos pelo git blame? Oferecemos algumas sugestões na seção Opinião do instrutor.
+
+Opinião do instrutor
+
+Crie uma nova branch com git switch -c {nome_da_branch};
+Nessa nova branch, crie um novo commit;
+Volte para a main e utilize o comando cherry-pick para aplicar esse único commit à main;
+Com o comando git blame, visualize os detalhes da última alteração de cada uma das linhas de determinado arquivo.
+
+@@06
+O que aprendemos?
+
+Nessa aula, nós:
+Vimos como podemos aplicar a nossa branch atual a algum commit vindo de outra branch sem a necessidade de rebase complicados ou técnicas avançadas, simplesmente utilizando o git cherry-pick;
+Conhecemos o git blame, que nos exibe todas as linhas de determinado arquivo com uma informação extra: o autor (e hash) do último commit que tocou cada uma dessas linhas;
+Entendemos que não devemos utilizar o git blame para encontrar ou apontar culpados por determinados problemas.
+Este conteúdo foi útil para o seu aprendizado?
+Ícone de polegar para cima indicando que o conteúdo foi útil para seu aprendizado
+Sim
+Ícone de polegar para baixo indicando que o conteúdo não foi útil para seu aprendizado
+
+@@07
+Conclusão
+
+Transcrição
+
+Parabéns por terem chegado ao final de mais um curso de Git.
+Nesse curso, nos aprofundamos no conhecimento de Git, explorando alguns comandos mais complexos e conceitos mais complicados.
+
+Esperamos que você tenha entendido o conceito por trás de todos os comandos.
+
+O que aprendemos?
+Iniciamos falando sobre o git log, que já conhecíamos, mas com alguns parâmetros a mais.
+
+Por exemplo, o git log --graph, que permite visualizar os ramos (branches) de forma visual.
+
+Também exploramos o git log -p, que exibe, junto com cada commit, o que foi alterado nele.
+
+Além de outros parâmetros, como git log--oneline e mais!
+
+Posteriormente, discutimos sobre como verificar cada modificação de um commit específico com o git show. Exploramos o formato e o comando git diff.
+
+Em suma, aprendemos bastante sobre como visualizar as alterações que foram feitas em cada um dos nossos commits.
+
+Depois, conversamos sobre organizar nosso trabalho. E aí, discutimos sobre branches ou ramificações de trabalhos, que são as nossas linhas de trabalho.
+
+Entendemos por que utilizar branches, como criar branches com o comando git branch ou com o comando git switch, além de mudar entre branches com o comando git switch.
+
+Também aprendemos como unir trabalhos de branches com o git merge e a rebasear nossas branches ou reescrever a história com o git rebase.
+
+Em seguida, começamos a manipular as alterações no projeto com git stash e git restore. Então, aprendemos sobre aquele tal de HEAD, aprendemos sobre staging area e sobre a working tree.
+
+São nomes complexos que não precisamos decorar, mas entendemos como manipular cada uma dessas partes, guardando e desfazendo alterações. Assim, manipulamos algumas partes diferentes do nosso repositório.
+
+Depois disso, conversamos novamente sobre versões em si. Criamos uma nova tag para representar uma versão do nosso projeto.
+
+Discutimos sobre tags anotadas ou annotated tags, que podem ter um autor, a data da criação e até uma mensagem. E geramos, a partir de uma tag, uma release no GitHub, que pode ter, além do arquivo do projeto em si, também um binário que pode ser gerado.
+
+No final, falamos sobre comandos específicos do Git, como cherry-pick e git blame e até conferimos em uma IDE.
+
+Participe da comunidade!
+Sabemos que aprendemos bastante! Se você tiver alguma dúvida, pode abrir um tópico no fórum ou levantar essa questão no nosso servidor do Discord da Alura, onde a interação é mais dinâmica. Em uma dessas duas fontes, alguém vai conseguir ajudá-lo com certeza.
+
+Mais uma vez, queremos te parabenizar por chegar até o final desse curso.
+
+Esperamos te encontrar em outros cursos da Alura. Até mais!
